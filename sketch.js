@@ -93,7 +93,6 @@ function draw() {
 	text("gravity: "+ g, (gravity_slider.x + gravity_slider.width + 15), (gravity_slider.y + (gravity_slider.height / 2) + (text_size / 2)));
 	text("dampening: "+ dampening, (dampening_slider.x + dampening_slider.width + 15), (dampening_slider.y + (dampening_slider.height / 2) + (text_size / 2)));
 	
-	
 	// line styling
 	stroke(linecolor);
 	strokeWeight(3);
@@ -179,8 +178,9 @@ function calcAngles() {
 	a2_a = ((num1 * (num2 + num3 + num4)) / den);
 	
 	
-	a1_a %= PI * 2;
-	a2_a %= PI * 2;
+	// wrap acceleration to prevent drawing from breaking due to high speed
+	a1_a %= (PI * 2);
+	a2_a %= (PI * 2);
 }
 
 function applyForces() {
@@ -205,38 +205,59 @@ function calcDraggedAngle() {
 	}
 	
 	if(dragging === 1) {
+		// set angle1 to be from ball 1 starting point (center) to mouse position
 		let delta_x = (mouseX - (width / 2));
 		let delta_y = ((height / 2) - mouseY);
+		
 		a1 = atan2(delta_y, delta_x) + PI/2;
 	} else if(dragging === 2) {
+		// set angle1 to be from ball 2 starting point (center + (x1, x2)) to mouse position
 		let delta_x = (mouseX - ((width / 2) + x1));
 		let delta_y = (((height / 2) + y1) - mouseY);
+		
 		a2 = atan2(delta_y, delta_x) + PI/2;
 	}
 }
 
 function touchStarted() {
+	// distance is from center since we translate to center of screen in draw()
 	let mouseDeltaX = (mouseX - (width / 2));
 	let mouseDeltaY = (mouseY - (height / 2));
+	
+	// check if we clicked on ball 1
 	let dist1 = dist(x1, y1, mouseDeltaX, mouseDeltaY);
-	let dist2 = dist(x2, y2, mouseDeltaX, mouseDeltaY);
+	
+	// max distance is half of ball's line distance from ball
 	let maxDist1 = (r1 / 2);
-	let maxDist2 = (r2 / 2);
 	
 	if(dist1 <= maxDist1) {
 		// dragging ball 1
 		dragging = 1;
-	} else if(dist2 <= maxDist2) {
-		// dragging ball 2
-		dragging = 2;
-		a1_a = 0;
-	} else {
-		dragging = false;
+		
+		calcDraggedAngle();
 		
 		return;
 	}
 	
-	calcDraggedAngle();
+	// check if we clicked on ball 2
+	let dist2 = dist(x2, y2, mouseDeltaX, mouseDeltaY);
+	let maxDist2 = (r2 / 2);
+	
+	if(dist2 <= maxDist2) {
+		// dragging ball 2
+		dragging = 2;
+		
+		// stop acceleration on a1 to prevent movement when dragging child ball
+		a1_a = 0;
+		
+		calcDraggedAngle();
+		
+		return;
+	}
+	
+	dragging = false;
+	
+	return;
 }
 
 function touchMoved() {
