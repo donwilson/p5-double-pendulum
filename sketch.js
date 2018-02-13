@@ -1,10 +1,13 @@
+// screen size
 let screenW = 512;
 let screenH = 512;
 
+// colors
 let bgcolor = "#1B1B1E";
 let textcolor = "#A9BCD0";
 let linecolor = "#58A4B0";
 
+// pendulum sizes/physics
 let r1 = (screenW / 6);
 let r2 = (screenW / 6);
 let m1 = 10.0;
@@ -19,25 +22,34 @@ let g = 1.0;
 let ballDiameter = 6;
 let dampening = 0.998;
 
+// ball points
 let x1;
 let y1;
 let x2;
 let y2;
 
+// sliders
 let r1_slider;
 let r2_slider;
 let m1_slider;
 let m2_slider;
 let dampening_slider;
 
+// state
 let dragging = false;
 
 function setup() {
+	// set bg color
+	document.body.style.background = bgcolor;
+	
+	// create canvas
 	createCanvas(screenW, screenH);
 	
+	// set default state
 	a1 = PI / 4;
 	a2 = -PI / 8;
 	
+	// create sliders
 	r1_slider = createSlider(10, (width / 3), r1);
 	r1_slider.position(15, 15);
 	
@@ -58,6 +70,7 @@ function setup() {
 }
 
 function draw() {
+	// pull realtime values from sliders
 	r1 = r1_slider.value();
 	r2 = r2_slider.value();
 	m1 = m1_slider.value();
@@ -65,8 +78,10 @@ function draw() {
 	g = gravity_slider.value();
 	dampening = (dampening_slider.value() / 1000);
 	
+	// draw bg
 	background(bgcolor);
 	
+	// draw text for sliders
 	let text_size = 12;
 	strokeWeight(0);
 	fill(textcolor);
@@ -79,36 +94,42 @@ function draw() {
 	text("dampening: "+ dampening, (dampening_slider.x + dampening_slider.width + 15), (dampening_slider.y + (dampening_slider.height / 2) + (text_size / 2)));
 	
 	
-	
+	// line styling
 	stroke(linecolor);
 	strokeWeight(3);
 	fill(linecolor);
 	
+	// translate to center
 	translate(width/2, height/2);
 	
-	x1 = r1 * sin(a1);
-	y1 = r1 * cos(a1);
+	calcPolarPoints();
 	
+	// draw pendulum
 	line(0, 0, x1, y1);
 	ellipse(x1, y1, ballDiameter, ballDiameter);
-	
-	x2 = (x1 + (r2 * sin(a2)));
-	y2 = (y1 + (r2 * cos(a2)));
 	
 	line(x1, y1, x2, y2);
 	ellipse(x2, y2, ballDiameter, ballDiameter);
 	
+	// calculate angles
 	calcAngles();
 	
-	a1_v += a1_a;
-	a2_v += a2_a;
+	// apply forces
+	applyForces();
 	
-	a1 += a1_v;
-	a2 += a2_v;
-	
+	// soften velocities over time
 	dampenVelocities();
 }
 
+function calcPolarPoints() {
+	// ball 1
+	x1 = r1 * sin(a1);
+	y1 = r1 * cos(a1);
+	
+	// ball 2
+	x2 = (x1 + (r2 * sin(a2)));
+	y2 = (y1 + (r2 * cos(a2)));
+}
 
 function calcAngles() {
 	if(dragging !== false) {
@@ -162,7 +183,18 @@ function calcAngles() {
 	a2_a %= PI * 2;
 }
 
+function applyForces() {
+	// add acceleration to velocity
+	a1_v += a1_a;
+	a2_v += a2_a;
+	
+	// add velocity to pendulum angles
+	a1 += a1_v;
+	a2 += a2_v;
+}
+
 function dampenVelocities() {
+	// soften velocity
 	a1_v *= dampening;
 	a2_v *= dampening;
 }
@@ -209,6 +241,7 @@ function touchStarted() {
 
 function touchMoved() {
 	if(false === dragging) {
+		// not dragging either ball
 		return;
 	}
 	
@@ -218,5 +251,6 @@ function touchMoved() {
 function touchEnded() {
 	calcDraggedAngle();
 	
+	// reset dragging
 	dragging = false;
 }
