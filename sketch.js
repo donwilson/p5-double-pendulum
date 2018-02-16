@@ -86,8 +86,8 @@ function draw() {
 	strokeWeight(0);
 	fill(textcolor);
 	textSize(text_size);
-	text("rod-1 1 length: "+ r1, (r1_slider.x + r1_slider.width + 15), (r1_slider.y + (r1_slider.height / 2) + (text_size / 2)));
-	text("rod-2 2 length: "+ r2, (r2_slider.x + r2_slider.width + 15), (r2_slider.y + (r2_slider.height / 2) + (text_size / 2)));
+	text("rod-1 length: "+ r1, (r1_slider.x + r1_slider.width + 15), (r1_slider.y + (r1_slider.height / 2) + (text_size / 2)));
+	text("rod-2 length: "+ r2, (r2_slider.x + r2_slider.width + 15), (r2_slider.y + (r2_slider.height / 2) + (text_size / 2)));
 	text("mass 1: "+ m1, (m1_slider.x + m1_slider.width + 15), (m1_slider.y + (m1_slider.height / 2) + (text_size / 2)));
 	text("mass 2: "+ m2, (m2_slider.x + m2_slider.width + 15), (m2_slider.y + (m2_slider.height / 2) + (text_size / 2)));
 	text("gravity: "+ g, (gravity_slider.x + gravity_slider.width + 15), (gravity_slider.y + (gravity_slider.height / 2) + (text_size / 2)));
